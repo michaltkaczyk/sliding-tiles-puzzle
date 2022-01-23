@@ -23,9 +23,9 @@ class Board:
         if self.empty_tile_position[1] > 0:
             available_moves.append("right")
 
-        print(available_moves)
+        return available_moves
 
 
 if __name__ == '__main__':
     board = Board(np.array([[1, 2, 3], [4, 5, 6], [7, 8, np.nan]]))
-    board.show_available_moves()
+    print(board.show_available_moves())
