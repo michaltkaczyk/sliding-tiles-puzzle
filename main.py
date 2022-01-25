@@ -7,6 +7,13 @@ class Board:
         self.board_state = board_state
         self.board_shape = np.array(board_state.shape)
         self.empty_tile_position = np.squeeze(np.argwhere(np.isnan(board_state)))
+        self.ideal_board_state = self.create_ideal_board()
+
+    def create_ideal_board(self):
+        x = np.arange(self.board_shape[0] * self.board_shape[1] - 1) + 1
+        x = np.append(x, np.nan)
+        x = np.reshape(x, self.board_shape)
+        return x
 
     def show_available_moves(self):
         available_moves = list()
