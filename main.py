@@ -51,41 +51,25 @@ class Board:
 
         return available_moves
 
-    def move_right(self):
-        self.board_state[self.empty_tile_position[0], self.empty_tile_position[1]] =\
-            self.board_state[self.empty_tile_position[0], self.empty_tile_position[1] - 1]
+    DIRECTION_VECTORS = {
+        "right": (0, -1),
+        "left": (0, 1),
+        "down": (-1, 0),
+        "up": (1, 0),
+    }
 
-        self.board_state[self.empty_tile_position[0], self.empty_tile_position[1] - 1] = np.nan
+    def move(self, direction):
+        if direction in self.DIRECTION_VECTORS:
+            old_index = (self.empty_tile_position[0], self.empty_tile_position[1])
+            new_index = tuple(sum(x) for x in zip(old_index, self.DIRECTION_VECTORS[direction]))
 
-        self.empty_tile_position = np.squeeze(np.argwhere(np.isnan(self.board_state)))
-        self.distance = self.calculate_distance()
+            self.board_state[old_index] = self.board_state[new_index]
+            self.board_state[new_index] = np.nan
 
-    def move_left(self):
-        self.board_state[self.empty_tile_position[0], self.empty_tile_position[1]] =\
-            self.board_state[self.empty_tile_position[0], self.empty_tile_position[1] + 1]
-
-        self.board_state[self.empty_tile_position[0], self.empty_tile_position[1] + 1] = np.nan
-
-        self.empty_tile_position = np.squeeze(np.argwhere(np.isnan(self.board_state)))
-        self.distance = self.calculate_distance()
-
-    def move_up(self):
-        self.board_state[self.empty_tile_position[0], self.empty_tile_position[1]] = \
-            self.board_state[self.empty_tile_position[0] + 1, self.empty_tile_position[1]]
-
-        self.board_state[self.empty_tile_position[0] + 1, self.empty_tile_position[1]] = np.nan
-
-        self.empty_tile_position = np.squeeze(np.argwhere(np.isnan(self.board_state)))
-        self.distance = self.calculate_distance()
-
-    def move_down(self):
-        self.board_state[self.empty_tile_position[0], self.empty_tile_position[1]] = \
-            self.board_state[self.empty_tile_position[0] - 1, self.empty_tile_position[1]]
-
-        self.board_state[self.empty_tile_position[0] - 1, self.empty_tile_position[1]] = np.nan
-
-        self.empty_tile_position = np.squeeze(np.argwhere(np.isnan(self.board_state)))
-        self.distance = self.calculate_distance()
+            self.empty_tile_position = np.squeeze(np.argwhere(np.isnan(self.board_state)))
+            self.distance = self.calculate_distance()
+        else:
+            raise ValueError("direction not recognized")
 
 
 if __name__ == '__main__':
@@ -95,19 +79,19 @@ if __name__ == '__main__':
 
     print(board.board_state)
     print(board.distance)
-    board.move_right()
+    board.move("right")
 
     print(board.board_state)
     print(board.distance)
-    board.move_left()
+    board.move("left")
 
     print(board.board_state)
     print(board.distance)
-    board.move_down()
+    board.move("down")
 
     print(board.board_state)
     print(board.distance)
-    board.move_up()
+    board.move("up")
 
     print(board.board_state)
     print(board.distance)
