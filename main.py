@@ -36,18 +36,31 @@ class Board:
 
     def show_available_moves(self):
         available_moves = list()
+        print("distance:", self.distance)
 
         if self.empty_tile_position[0] + 1 < self.board_shape[0]:
             available_moves.append("up")
+            self.move("up")
+            print("on move up distance would be:", self.distance)
+            self.move("down")
 
         if self.empty_tile_position[0] > 0:
             available_moves.append("down")
+            self.move("down")
+            print("on move down distance would be:", self.distance)
+            self.move("up")
 
         if self.empty_tile_position[1] + 1 < self.board_shape[1]:
             available_moves.append("left")
+            self.move("left")
+            print("on move left distance would be:", self.distance)
+            self.move("right")
 
         if self.empty_tile_position[1] > 0:
             available_moves.append("right")
+            self.move("right")
+            print("on move right distance would be:", self.distance)
+            self.move("left")
 
         return available_moves
 
@@ -73,7 +86,7 @@ class Board:
 
 
 if __name__ == '__main__':
-    board = Board(np.array([[4, 2, 3], [8, 5, 6], [7, 1, np.nan]]))
+    board = Board(np.array([[7, 4, 8], [1, np.nan, 5], [6, 2, 3]]))
 
     print(board.show_available_moves())
 
