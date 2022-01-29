@@ -6,7 +6,7 @@ class Board:
     def __init__(self, board_state):
         self.board_state = board_state
         self.board_shape = np.array(board_state.shape)
-        self.empty_tile_position = np.squeeze(np.argwhere(np.isnan(board_state)))
+        self.empty_tile_position = tuple(np.argwhere(np.isnan(board_state))[0])
         self.ideal_board_state = self.create_ideal_board()
         self.distance = self.calculate_distance()
 
@@ -79,7 +79,7 @@ class Board:
             self.board_state[old_index] = self.board_state[new_index]
             self.board_state[new_index] = np.nan
 
-            self.empty_tile_position = np.squeeze(np.argwhere(np.isnan(self.board_state)))
+            self.empty_tile_position = tuple(np.argwhere(np.isnan(self.board_state))[0])
             self.distance = self.calculate_distance()
         else:
             raise ValueError("direction not recognized")
