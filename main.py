@@ -20,6 +20,31 @@ def calculate_distance(board_state, final_board_state):
     return np.sum(distance_matrix)
 
 
+def show_available_moves(board_state):
+    empty_tile_position = tuple(np.argwhere(np.isnan(board_state))[0])
+
+    available_moves = {
+        "right": False,
+        "left": False,
+        "down": False,
+        "up": False,
+    }
+
+    if empty_tile_position[0] + 1 < board_state.shape[0]:
+        available_moves["up"] = True
+
+    if empty_tile_position[0] > 0:
+        available_moves["down"] = True
+
+    if empty_tile_position[1] + 1 < board_state.shape[1]:
+        available_moves["left"] = True
+
+    if empty_tile_position[1] > 0:
+        available_moves["right"] = True
+
+    return available_moves
+
+
 class Board:
 
     def __init__(self, board_state):
@@ -34,36 +59,6 @@ class Board:
         x = np.append(x, np.nan)
         x = np.reshape(x, self.board_shape)
         return x
-
-    def show_available_moves(self):
-        available_moves = list()
-        print("distance:", self.distance)
-
-        if self.empty_tile_position[0] + 1 < self.board_shape[0]:
-            available_moves.append("up")
-            self.move("up")
-            print("on move up distance would be:", self.distance)
-            self.move("down")
-
-        if self.empty_tile_position[0] > 0:
-            available_moves.append("down")
-            self.move("down")
-            print("on move down distance would be:", self.distance)
-            self.move("up")
-
-        if self.empty_tile_position[1] + 1 < self.board_shape[1]:
-            available_moves.append("left")
-            self.move("left")
-            print("on move left distance would be:", self.distance)
-            self.move("right")
-
-        if self.empty_tile_position[1] > 0:
-            available_moves.append("right")
-            self.move("right")
-            print("on move right distance would be:", self.distance)
-            self.move("left")
-
-        return available_moves
 
     DIRECTION_VECTORS = {
         "right": (0, -1),
@@ -102,6 +97,12 @@ class Search:
             print("success!")
         else:
             print("working on it...")
+
+            available_moves = show_available_moves(currently_analyzed_board_state)
+
+            for move in available_moves:
+                if available_moves[move] is True:
+                    print(move)
 
 
 if __name__ == '__main__':
