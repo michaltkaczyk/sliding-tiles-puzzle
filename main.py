@@ -1,4 +1,13 @@
+import copy
 import numpy as np
+
+
+DIRECTION_VECTORS = {
+    "right": (0, -1),
+    "left": (0, 1),
+    "down": (-1, 0),
+    "up": (1, 0),
+}
 
 
 def calculate_distance(board_state, final_board_state):
@@ -45,6 +54,23 @@ def show_available_moves(board_state):
     return available_moves
 
 
+def move(board_state, direction):
+    empty_tile_position = tuple(np.argwhere(np.isnan(board_state))[0])
+
+    if direction in DIRECTION_VECTORS:
+        old_index = (empty_tile_position[0], empty_tile_position[1])
+        new_index = tuple(sum(x) for x in zip(old_index, DIRECTION_VECTORS[direction]))
+
+        new_board_state = copy.deepcopy(board_state)
+
+        new_board_state[old_index] = board_state[new_index]
+        new_board_state[new_index] = np.nan
+
+        return new_board_state
+    else:
+        raise ValueError("direction not recognized")
+
+
 class Board:
 
     def __init__(self, board_state):
@@ -59,26 +85,6 @@ class Board:
         x = np.append(x, np.nan)
         x = np.reshape(x, self.board_shape)
         return x
-
-    DIRECTION_VECTORS = {
-        "right": (0, -1),
-        "left": (0, 1),
-        "down": (-1, 0),
-        "up": (1, 0),
-    }
-
-    def move(self, direction):
-        if direction in self.DIRECTION_VECTORS:
-            old_index = (self.empty_tile_position[0], self.empty_tile_position[1])
-            new_index = tuple(sum(x) for x in zip(old_index, self.DIRECTION_VECTORS[direction]))
-
-            self.board_state[old_index] = self.board_state[new_index]
-            self.board_state[new_index] = np.nan
-
-            self.empty_tile_position = tuple(np.argwhere(np.isnan(self.board_state))[0])
-            self.distance = calculate_distance(self.board_state, self.final_board_state)
-        else:
-            raise ValueError("direction not recognized")
 
 
 class Search:
@@ -100,9 +106,12 @@ class Search:
 
             available_moves = show_available_moves(currently_analyzed_board_state)
 
-            for move in available_moves:
-                if available_moves[move] is True:
-                    print(move)
+            for direction in available_moves:
+                if available_moves[direction] is True:
+                    print(direction)
+
+                    self.analyzed_board_states.append(move(currently_analyzed_board_state, direction))
+                    print(move(currently_analyzed_board_state, direction))
 
 
 if __name__ == '__main__':
