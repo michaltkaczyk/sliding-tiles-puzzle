@@ -26,8 +26,8 @@ class Board:
         self.board_state = board_state
         self.board_shape = np.array(board_state.shape)
         self.empty_tile_position = tuple(np.argwhere(np.isnan(board_state))[0])
-        self.ideal_board_state = self.create_ideal_board()
-        self.distance = calculate_distance(self.board_state, self.ideal_board_state)
+        self.final_board_state = self.create_ideal_board()
+        self.distance = calculate_distance(self.board_state, self.final_board_state)
 
     def create_ideal_board(self):
         x = np.arange(self.board_shape[0] * self.board_shape[1] - 1) + 1
@@ -81,31 +81,36 @@ class Board:
             self.board_state[new_index] = np.nan
 
             self.empty_tile_position = tuple(np.argwhere(np.isnan(self.board_state))[0])
-            self.distance = calculate_distance(self.board_state, self.ideal_board_state)
+            self.distance = calculate_distance(self.board_state, self.final_board_state)
         else:
             raise ValueError("direction not recognized")
 
 
+class Search:
+
+    def __init__(self, board):
+        self.initial_board_state = board.board_state
+        self.final_board_state = board.final_board_state
+
+        self.analyzed_board_states = [self.initial_board_state]         # L
+        self.seen_board_states = []                                     # L_seen
+
+    def run(self):
+        currently_analyzed_board_state = self.analyzed_board_states[0]  # n
+
+        if calculate_distance(currently_analyzed_board_state, self.final_board_state) == 0:
+            print("success!")
+        else:
+            print("working on it...")
+
+
 if __name__ == '__main__':
-    board = Board(np.array([[7, 4, 8], [1, np.nan, 5], [6, 2, 3]]))
+    print("Solving board A:")
+    board_a = Board(np.array([[7, 4, 8], [1, np.nan, 5], [6, 2, 3]]))
+    search = Search(board_a)
+    search.run()
 
-    print(board.show_available_moves())
-
-    print(board.board_state)
-    print(board.distance)
-    board.move("right")
-
-    print(board.board_state)
-    print(board.distance)
-    board.move("left")
-
-    print(board.board_state)
-    print(board.distance)
-    board.move("down")
-
-    print(board.board_state)
-    print(board.distance)
-    board.move("up")
-
-    print(board.board_state)
-    print(board.distance)
+    print("\nSolving board B:")
+    board_b = Board(np.array([[1, 2, 3], [4, 5, 6], [7, 8, np.nan]]))
+    search = Search(board_b)
+    search.run()
