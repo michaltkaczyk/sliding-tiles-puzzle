@@ -98,6 +98,7 @@ class Search:
 
     def run(self):
         currently_analyzed_board_state = self.analyzed_board_states[0]  # n
+        self.analyzed_board_states.pop()
 
         if calculate_distance(currently_analyzed_board_state, self.final_board_state) == 0:
             print("success!")
@@ -108,10 +109,12 @@ class Search:
 
             for direction in available_moves:
                 if available_moves[direction] is True:
-                    print(direction)
+                    new_board_state = move(currently_analyzed_board_state, direction)
+                    if new_board_state not in self.seen_board_states:
+                        self.analyzed_board_states.append(new_board_state)
 
-                    self.analyzed_board_states.append(move(currently_analyzed_board_state, direction))
-                    print(move(currently_analyzed_board_state, direction))
+            for board_state in self.analyzed_board_states:
+                print(calculate_distance(board_state, self.final_board_state))
 
 
 if __name__ == '__main__':
