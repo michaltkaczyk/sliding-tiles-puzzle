@@ -1,6 +1,25 @@
 import numpy as np
 
 
+def calculate_distance(board_state, final_board_state):
+    distance_matrix = np.zeros(np.array(board_state.shape))
+
+    for row in range(board_state.shape[0]):
+        for column in range(board_state.shape[1]):
+            item = final_board_state[row, column]
+
+            if not np.isnan(item):
+                item_current_row = np.where(board_state == item)[0][0]
+                item_current_column = np.where(board_state == item)[1][0]
+
+                row_distance = abs(item_current_row - row)
+                column_distance = abs(item_current_column - column)
+
+                distance_matrix[row, column] = row_distance + column_distance
+
+    return np.sum(distance_matrix)
+
+
 class Board:
 
     def __init__(self, board_state):
@@ -8,31 +27,13 @@ class Board:
         self.board_shape = np.array(board_state.shape)
         self.empty_tile_position = tuple(np.argwhere(np.isnan(board_state))[0])
         self.ideal_board_state = self.create_ideal_board()
-        self.distance = self.calculate_distance()
+        self.distance = calculate_distance(self.board_state, self.ideal_board_state)
 
     def create_ideal_board(self):
         x = np.arange(self.board_shape[0] * self.board_shape[1] - 1) + 1
         x = np.append(x, np.nan)
         x = np.reshape(x, self.board_shape)
         return x
-
-    def calculate_distance(self):
-        distance_matrix = np.zeros((self.board_shape[0], self.board_shape[1]))
-
-        for row in range(self.board_shape[0]):
-            for column in range(self.board_shape[1]):
-                item = self.ideal_board_state[row, column]
-
-                if not np.isnan(item):
-                    item_current_row = np.where(self.board_state == item)[0][0]
-                    item_current_column = np.where(self.board_state == item)[1][0]
-
-                    row_distance = abs(item_current_row - row)
-                    column_distance = abs(item_current_column - column)
-
-                    distance_matrix[row, column] = row_distance + column_distance
-
-        return np.sum(distance_matrix)
 
     def show_available_moves(self):
         available_moves = list()
@@ -80,7 +81,7 @@ class Board:
             self.board_state[new_index] = np.nan
 
             self.empty_tile_position = tuple(np.argwhere(np.isnan(self.board_state))[0])
-            self.distance = self.calculate_distance()
+            self.distance = calculate_distance(self.board_state, self.ideal_board_state)
         else:
             raise ValueError("direction not recognized")
 
