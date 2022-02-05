@@ -1,7 +1,6 @@
 import copy
 import numpy as np
 
-
 DIRECTION_VECTORS = {
     "right": (0, -1),
     "left": (0, 1),
@@ -16,6 +15,8 @@ def calculate_distance(board_state, final_board_state):
     for row in range(board_state.shape[0]):
         for column in range(board_state.shape[1]):
             item = final_board_state[row, column]
+
+            # Position of the empty tile (coded as 0) is not included in the distance calculation
 
             if not item == 0:
                 item_current_row = np.where(board_state == item)[0][0]
@@ -81,6 +82,10 @@ class Board:
         self.distance = calculate_distance(self.board_state, self.final_board_state)
 
     def create_ideal_board(self):
+        # As opposed to the original problem description, position of the empty tile (coded as 0) for a solved board is
+        # not in the middle, but rather in the bottom-right corner. This allows solving any n x m rectangular puzzle,
+        # rather than just (2n+1) x (2n+1) ones.
+
         x = np.arange(self.board_shape[0] * self.board_shape[1] - 1) + 1
         x = np.append(x, 0)
         x = np.reshape(x, self.board_shape)
@@ -96,11 +101,11 @@ class Search:
         self.success = False
         self.iteration = 0
 
-        self.analyzed_board_states = [self.initial_board_state]         # L
-        self.seen_board_states = []                                     # L_seen
+        self.analyzed_board_states = [self.initial_board_state]  # L
+        self.seen_board_states = []  # L_seen
 
     def run(self):
-        while len(self.analyzed_board_states) > 0 and self.success == False and self.iteration < 100:
+        while len(self.analyzed_board_states) > 0 and self.success is False and self.iteration < 100:
 
             currently_analyzed_board_state = self.analyzed_board_states[0]  # n
             self.analyzed_board_states.pop()
@@ -124,8 +129,9 @@ class Search:
                 for board_state in self.analyzed_board_states:
                     analyzed_board_states_distances.append(calculate_distance(board_state, self.final_board_state))
 
-                self.analyzed_board_states =\
-                    [self.analyzed_board_states[i] for i in np.argsort(analyzed_board_states_distances)]
+                self.analyzed_board_states = [board_state for _, board_state in
+                                              sorted(zip(analyzed_board_states_distances, self.analyzed_board_states),
+                                                     key=lambda pair: pair[0])]
 
                 self.iteration += 1
 
