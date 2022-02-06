@@ -8,6 +8,8 @@ DIRECTION_VECTORS = {
     "up": (1, 0),
 }
 
+ITERATIONS_LIMIT = 100
+
 
 def calculate_distance(board_state, final_board_state):
     distance_matrix = np.zeros(np.array(board_state.shape))
@@ -101,48 +103,64 @@ class Search:
         self.success = False
         self.iteration = 0
 
-        self.analyzed_board_states = [self.initial_board_state]  # L
-        self.seen_board_states = []  # L_seen
+        self.board_states_to_see = [self.initial_board_state]  # L
+        self.seen_board_states = []                            # L_seen
 
     def run(self):
-        while len(self.analyzed_board_states) > 0 and self.success is False and self.iteration < 100:
+        while len(self.board_states_to_see) > 0 and self.success is False and self.iteration < ITERATIONS_LIMIT:
+            currently_analyzed_board_state = self.board_states_to_see[0]  # n
+            print(currently_analyzed_board_state)
 
-            currently_analyzed_board_state = self.analyzed_board_states[0]  # n
-            self.analyzed_board_states.pop()
+            self.seen_board_states.append(currently_analyzed_board_state)
+            self.board_states_to_see.pop(0)
 
             if calculate_distance(currently_analyzed_board_state, self.final_board_state) == 0:
-                print("success!")
+                print("The problem was successfully solved in", self.iteration, "moves!")
+
                 self.success = True
             else:
-                print("working on it...")
-
                 available_moves = show_available_moves(currently_analyzed_board_state)
 
                 for direction in available_moves:
                     if available_moves[direction] is True:
                         new_board_state = move(currently_analyzed_board_state, direction)
-                        if new_board_state not in self.seen_board_states:
-                            self.analyzed_board_states.append(new_board_state)
+                        if not np.any(np.all(new_board_state == self.seen_board_states, axis=(1, 2))):
+                            self.board_states_to_see.append(new_board_state)
 
                 analyzed_board_states_distances = []
 
-                for board_state in self.analyzed_board_states:
+                for board_state in self.board_states_to_see:
                     analyzed_board_states_distances.append(calculate_distance(board_state, self.final_board_state))
 
-                self.analyzed_board_states = [board_state for _, board_state in
-                                              sorted(zip(analyzed_board_states_distances, self.analyzed_board_states),
-                                                     key=lambda pair: pair[0])]
-
+                self.board_states_to_see = [board_state for _, board_state in
+                                            sorted(zip(analyzed_board_states_distances, self.board_states_to_see),
+                                                   key=lambda pair: pair[0])]
                 self.iteration += 1
+
+        if self.success is False:
+            if len(self.board_states_to_see) == 0:
+                print("There are no more states for the algorithm to check. The problem is unsolvable.")
+            elif self.iteration == ITERATIONS_LIMIT:
+                print("The algorithm exceeded the available number of iterations.")
 
 
 if __name__ == '__main__':
-    print("Solving board A:")
+    print("\nSolving a solved board:")
+    board_b = Board(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 0]]))
+    search = Search(board_b)
+    search.run()
+
+    print("\nSolving an easy board:")
     board_a = Board(np.array([[1, 2, 3], [4, 0, 6], [7, 5, 8]]))
     search = Search(board_a)
     search.run()
 
-    print("\nSolving board B:")
-    board_b = Board(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 0]]))
-    search = Search(board_b)
+    print("\nSolving an unsolvable board (2 x 2):")
+    board_c = Board(np.array([[1, 3], [2, 0]]))
+    search = Search(board_c)
+    search.run()
+
+    print("\nSolving an unsolvable board (3 x 3):")
+    board_d = Board(np.array([[1, 2, 3], [4, 5, 6], [8, 7, 0]]))
+    search = Search(board_d)
     search.run()
